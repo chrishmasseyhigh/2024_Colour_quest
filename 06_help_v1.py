@@ -3,15 +3,71 @@ from functools import partial  # To prevent unwanted windows
 import csv
 import random
 
-class ChooseRounds:
-    def __init__(self):
-        # invoke play class for testing
-        self.to_play(3)
+
+class ColourQuest:
+    def __init__(self, master):
+        self.master = master
+        master.title("Colour Quest")
+
+        # Initialize variables
+        self.var_feedback = StringVar()
+        self.var_feedback.set("")
+
+        self.var_has_error = StringVar()
+        self.var_has_error.set("no")
+
+        # Common format for all buttons
+        button_font = ("Arial", "12", "bold")
+        button_fg = "#FFFFFF"
+
+        # Set up GUI Frame
+        self.temp_frame = Frame(master)
+        self.temp_frame.grid()
+
+        # Header label
+        self.temp_heading = Label(self.temp_frame,
+                                  text="Colour Quest",
+                                  font=("Arial", 16, "bold")
+                                  )
+        self.temp_heading.grid(row=0)
+
+        # Instructions label
+        instructions = "In each round you will be given six " \
+                       "different colours to choose from. Pick a colour\n" \
+                       "and see if you can beat the computer's score!\n" \
+                       "\nTo begin, choose how many rounds you would like to play...\n"
+        self.temp_instructions = Label(self.temp_frame,
+                                       text=instructions,
+                                       wrap=250, width=40,
+                                       justify="left")
+        self.temp_instructions.grid(row=1)
+
+        # Button frame for conversion and other actions
+        self.button_frame = Frame(self.temp_frame)
+        self.button_frame.grid(row=4)
+
+        # Button configurations
+        button_colour = [
+            ["#CC0000", 3], ["#009900", 5], ["#000099", 10]
+        ]
+
+        # Create buttons using loop
+        for item in range(0, 3):
+            rounds_button = Button(self.button_frame,
+                                   text="{} Rounds".format(button_colour[item][1]),
+                                   bg=button_colour[item][0],
+                                   fg=button_fg,
+                                   font=button_font, width=10,
+                                   command=lambda i=item: self.to_play(button_colour[i][1])
+                                   )
+            rounds_button.grid(row=1, column=item,
+                               padx=5, pady=5)
 
     def to_play(self, num_rounds):
-        Play(self, num_rounds)
+        Play(self.master, num_rounds)
         # hide root window (i.e., hide rounds choice window)
-        root.withdraw()
+        self.master.withdraw()
+
 
 class Play:
 
@@ -312,13 +368,71 @@ class Play:
         print("You chose to get the statistics")
 
     def get_help(self):
-        print("You chose to get help")
+        # Call DisplayHelp class to display help dialog
+        DisplayHelp(self.master)
 
-    # DON'T USE THIS FUNCTION IN BASE AS IT KILLS THE ROOT
     def close_play(self):
-        root.destroy()
+        # end current game and allow new game to start
+        self.master.deiconify()
+        self.play_box.destroy()
+
+# show users help / game tips:
+class DisplayHelp:
+
+    def __init__(self, partner):
+        background = "#ffe6cc"
+        self.help_box = Toplevel()
+
+        # Disable the help button in the partner Converter instance
+        partner.to_help_info_button.config(state=DISABLED)
+
+        # If users press cross at top, closes help and
+        # 'releases' help button
+        self.help_box.protocol('WH_DELETE_WINDOW',
+                               partial(self.close_help, partner))
+        self.help_frame = Frame(self.help_box, width=300, height=200,
+                                bg=background)
+        self.help_frame.grid()
+
+        self.help_heading_label = Label(self.help_frame, bg=background,
+                                        text="Help / Info",
+                                        font=("Arial", "14", "bold"))
+        self.help_heading_label.grid(row=0)
+        help_text = """To use the program, simply enter the temperature
+    you wish to convert and then choose to convert 
+    to either degrees Celsius (centigrade) or 
+    Fahrenheit.. \n\n
+
+    Note that -273 degrees C 
+    (-459 F) is absolute zero (the coldest possible 
+    temperature). If you try to convert a 
+    temperature that is less than -273 degrees C, 
+    you will get an error message. \n\n
+
+    To see your 
+    calculation history and export it to a text 
+    file, please click the 'History / Export' button."""
+        self.help_text_label = Label(self.help_frame, bg=background,
+                                     text=help_text, wrap=350,
+                                     justify="left")
+        self.help_text_label.grid(row=1, padx=10)
+
+        self.dismiss_button = Button(self.help_frame,
+                                     font=("Arial", "12", "bold"),
+                                     text="Dismiss", bg="#CC6600",
+                                     fg="#FFFFFF",
+                                     command=partial(self.close_help,
+                                                     partner))
+        self.dismiss_button.grid(row=2, padx=18, pady=18)
+
+    # closes help dialouge ( used by button and x at top of dialouge)
+    def close_help(self, partner):
+        # Enable the help button in the partner Converter instance
+        partner.to_help_info_button.config(state=NORMAL)
+
+        self.help_box.destroy()
 
 if __name__ == "__main__":
     root = Tk()
-    my_game = ChooseRounds()
+    my_game = ColourQuest(root)
     root.mainloop()
