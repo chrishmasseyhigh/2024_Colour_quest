@@ -78,7 +78,7 @@ class Play:
 
         # If users press cross at top, closes help(releases help button)
         self.play_box.protocol('WM_DELETE_WINDOW',
-                            partial(self.close_play))
+                               partial(self.close_play))
 
         # Variables used to work out stats when game ends
         self.rounds_wanted = IntVar()
@@ -103,14 +103,14 @@ class Play:
         self.quest_frame.grid()
 
         rounds_heading = " Chose - Round 1 of {}".format(how_many)
-        self.choose_heading = Label(self.quest_frame,text=rounds_heading,
+        self.choose_heading = Label(self.quest_frame, text=rounds_heading,
                                     font=("Arial", "16", "bold")
                                     )
         self.choose_heading.grid(row=0)
 
-        instructions = "Choose one of the colours below. When you choose"\
-                        "a colour, the computer's choice and the results"\
-                        "the round will be revealed."
+        instructions = "Choose one of the colours below. When you choose" \
+                       "a colour, the computer's choice and the results" \
+                       "the round will be revealed."
 
         self.instructions_label = Label(self.quest_frame, text=instructions,
                                         wraplength=350, justify="left")
@@ -124,7 +124,7 @@ class Play:
         self.choice_frame.grid(row=2)
 
         # list to hold refrences for coloured button
-        #so they can be configer for new rounds
+        # so they can be configer for new rounds
         self.choice_button_ref = []
 
         for item in range(0, 6):
@@ -149,10 +149,10 @@ class Play:
         self.rounds_frame.grid(row=4, pady=5)
 
         self.round_results_label = Label(self.rounds_frame, text="Round 1: :User:- \t Computer:-",
-                                        width=32, bg="#FFF2cc",
-                                        font=("Arial",10),
-                                        pady=5)
-        self.round_results_label.grid(row=0, column=0,padx =5)
+                                         width=32, bg="#FFF2cc",
+                                         font=("Arial", 10),
+                                         pady=5)
+        self.round_results_label.grid(row=0, column=0, padx=5)
 
         self.next_button = Button(self.rounds_frame, text="Next Round",
                                   fg="#FFFFFF", bg="#008BFC",
@@ -180,7 +180,7 @@ class Play:
             ["#808080", "Start Over", "start over"]
         ]
 
-        #lists to hold refrences for control buttons
+        # lists to hold refrences for control buttons
         self.control_button_ref = []
 
         for item in range(0, 3):
@@ -188,12 +188,14 @@ class Play:
                                               fg="#FFFFFF",
                                               bg=control_buttons[item][0],
                                               text=control_buttons[item][1],
-                                              width=11, font=("Arial","12","bold"),
+                                              width=11, font=("Arial", "12", "bold"),
                                               command=lambda i=item: self.to_do(control_buttons[i][2]))
-            self.make_control_button.grid(row=0, column=item,padx=5,pady=5)
+            self.make_control_button.grid(row=0, column=item, padx=5, pady=5)
 
             # add buttons to control list
             self.control_button_ref.append(self.make_control_button)
+
+        self.help_button = self.control_button_ref[0]
 
     # retrieve colours from csv file
     def get_all_colours(self):
@@ -205,7 +207,7 @@ class Play:
         var_all_colors.pop(0)
         return var_all_colors
 
-    #randomly gets colours
+    # randomly gets colours
     def get_round_colors(self):
         round_colour_list = []
         color_scores = []
@@ -257,8 +259,7 @@ class Play:
                       "{}".format(current_round + 1, how_many)
         self.choose_heading.config(text=new_heading)
 
-
-    #work out who won and if the game is over
+    # work out who won and if the game is over
     def to_compare(self, user_choice):
 
         how_many = self.rounds_wanted.get()
@@ -358,7 +359,7 @@ class Play:
     # with calls to classes in this section!
     def to_do(self, action):
         if action == "get help":
-            self.get_help()
+            DisplayHelp(self)
         elif action == "get stats":
             self.get_stats()
         else:
@@ -371,47 +372,48 @@ class Play:
         # Call DisplayHelp class to display help dialog
         DisplayHelp(self.master)
 
+
     def close_play(self):
         # end current game and allow new game to start
         self.master.deiconify()
         self.play_box.destroy()
 
+
 # show users help / game tips:
 class DisplayHelp:
 
     def __init__(self, partner):
+
         background = "#ffe6cc"
         self.help_box = Toplevel()
 
         # Disable the help button in the partner Converter instance
-        partner.to_help_info_button.config(state=DISABLED)
+        partner.help_button.config(state=DISABLED)
 
         # If users press cross at top, closes help and
         # 'releases' help button
-        self.help_box.protocol('WH_DELETE_WINDOW',
+        self.help_box.protocol('WM_DELETE_WINDOW',
                                partial(self.close_help, partner))
+
         self.help_frame = Frame(self.help_box, width=300, height=200,
                                 bg=background)
         self.help_frame.grid()
 
         self.help_heading_label = Label(self.help_frame, bg=background,
-                                        text="Help / Info",
-                                        font=("Arial", "14", "bold"))
+                                        text="Help / hints",
+                                        font=("Arial", "18", "bold"))
         self.help_heading_label.grid(row=0)
-        help_text = """To use the program, simply enter the temperature
-    you wish to convert and then choose to convert 
-    to either degrees Celsius (centigrade) or 
-    Fahrenheit.. \n\n
+        help_text = """ Your goal in this game is to beat the computer and you have an
+    advantage-you get to chose the colour first. The points
+    associated with the colours are based on the colours hex code. 
+    The higher the value of the colour, the greater your score. 
 
-    Note that -273 degrees C 
-    (-459 F) is absolute zero (the coldest possible 
-    temperature). If you try to convert a 
-    temperature that is less than -273 degrees C, 
-    you will get an error message. \n\n
+    To see that statistics, click on the statistics button. Win the
+    game by scoring more that the computer overall. Don't be
+    discouraged if you don't win every round, it's your overall score
+    that counts. 
 
-    To see your 
-    calculation history and export it to a text 
-    file, please click the 'History / Export' button."""
+    Good luck! Chose carefully.."""
         self.help_text_label = Label(self.help_frame, bg=background,
                                      text=help_text, wrap=350,
                                      justify="left")
@@ -427,10 +429,10 @@ class DisplayHelp:
 
     # closes help dialouge ( used by button and x at top of dialouge)
     def close_help(self, partner):
-        # Enable the help button in the partner Converter instance
-        partner.to_help_info_button.config(state=NORMAL)
-
         self.help_box.destroy()
+        # Enable the help button in the partner Converter instance
+        partner.help_button.config(state=NORMAL)
+
 
 if __name__ == "__main__":
     root = Tk()
